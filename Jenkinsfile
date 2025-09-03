@@ -2,24 +2,16 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB = credentials('dockerhub-creds')   // Your Docker Hub creds stored in Jenkins
+        DOCKERHUB = credentials('dockerhub-creds')  // Docker Hub creds stored in Jenkins
     }
 
     stages {
-        stage('Checkout Code') {
-            steps {
-                git branch: "${env.BRANCH_NAME}",
-                    credentialsId: 'github-creds',   // Your GitHub creds stored in Jenkins
-                    url: 'https://github.com/ravikumar9339/devops-build.git'
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 script {
-                    if (env.BRANCH_NAME == 'dev') {
+                    if (env.GIT_BRANCH == 'origin/dev') {
                         IMAGE_NAME = "ravimccullum/devops-build:dev-${BUILD_NUMBER}"
-                    } else if (env.BRANCH_NAME == 'master') {
+                    } else if (env.GIT_BRANCH == 'origin/master' || env.GIT_BRANCH == 'origin/main') {
                         IMAGE_NAME = "ravimccullum/devops-build:prod-${BUILD_NUMBER}"
                     } else {
                         error("This pipeline only supports dev and master branches!")
